@@ -8,6 +8,7 @@ import ContactPage from './pages/ContactPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import { Property } from './types';
+import { SEED_PROPERTIES } from './seedData';
 import { Phone, MessageCircle, ArrowUp } from 'lucide-react';
 
 export default function App() {
@@ -29,12 +30,26 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Fetch updated catalog on mount
+  // Fetch updated catalog on mount with robust static fallback for Netlify static deployments
   const fetchProperties = () => {
     fetch('/api/properties')
-      .then(res => res.json())
-      .then(data => setProperties(data))
-      .catch(err => console.error('Failed to load properties catalog from Express', err));
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProperties(data);
+        } else {
+          throw new Error('Fetched properties data is not an array');
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load properties catalog from Express API. Using local SEED fallback for static deployment.', err);
+        setProperties(SEED_PROPERTIES);
+      });
   };
 
   useEffect(() => {

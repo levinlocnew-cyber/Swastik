@@ -3,6 +3,7 @@ import { Search, House, Phone, Award, Compass, Sparkles, Star, Quote, ArrowRight
 import PropertyCard from '../components/PropertyCard';
 import InquiryForm from '../components/InquiryForm';
 import { Property, Testimonial, Category } from '../types';
+import { SEED_CATEGORIES, SEED_TESTIMONIALS } from '../seedData';
 
 interface HomePageProps {
   onNavigate: (path: string) => void;
@@ -19,10 +20,35 @@ export default function HomePage({ onNavigate, properties }: HomePageProps) {
     maxPrice: ''
   });
 
-  // Fetch Categories & Testimonials on load
+  // Fetch Categories & Testimonials on load with secure static backups for platform transitions
   useEffect(() => {
-    fetch('/api/categories').then(res => res.json()).then(data => setCategories(data)).catch(err => console.error(err));
-    fetch('/api/testimonials').then(res => res.json()).then(data => setTestimonials(data)).catch(err => console.error(err));
+    fetch('/api/categories')
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) setCategories(data);
+        else throw new Error();
+      })
+      .catch(err => {
+        console.warn('Unable to reach /api/categories, adopting local SEED fallback values', err);
+        setCategories(SEED_CATEGORIES);
+      });
+
+    fetch('/api/testimonials')
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) setTestimonials(data);
+        else throw new Error();
+      })
+      .catch(err => {
+        console.warn('Unable to reach /api/testimonials, adopting local SEED fallback values', err);
+        setTestimonials(SEED_TESTIMONIALS);
+      });
   }, []);
 
   const featuredProperties = properties.filter(p => p.featured).slice(0, 3);
