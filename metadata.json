@@ -1,0 +1,6 @@
+{
+  "name": "Swastik Group",
+  "description": "Your Trusted Property Partner in Lucknow - Premium Real Estate Listings, Residential, Commercial, and Plot/Land properties in Lucknow, Uttar Pradesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
